@@ -1,48 +1,11 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"golang.org/x/net/html"
 	"log"
 	"net/http"
 )
-
-type item struct {
-	links []string
-	depth int
-}
-
-var maxDepth = flag.Int("depth", 1, "maximum depth of crawling")
-
-func main() {
-	flag.Parse()
-	worklist := make(chan item)
-	var n int
-
-	n++
-	go func() { worklist <- item{links: flag.Args(), depth: 1} }()
-
-	seen := make(map[string]bool)
-	for ; n > 0; n-- {
-		list := <-worklist
-		currentDepth := list.depth
-		for _, link := range list.links {
-			if !seen[link] {
-				seen[link] = true
-
-				if currentDepth == *maxDepth {
-					fmt.Println(link)
-				} else {
-					n++
-					go func(link string) {
-						worklist <- item{links: crawl(link), depth: currentDepth + 1}
-					}(link)
-				}
-			}
-		}
-	}
-}
 
 // the buffered chanel models concurrency primitive called counting semaphore
 // to limit parallelism
